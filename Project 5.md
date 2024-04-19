@@ -11,7 +11,6 @@
 
 **At its simplest, the client/server architecture is about dividing up application processing into two or more logically distinct pieces. The database makes up half of the client/server architecture. The database is the “server”; any application that uses that data is a “client.” In many cases, the client and server reside on separate machines; in most cases, the client application is some sort of user-friendly interface to the database.**
 
-
 ![image](https://user-images.githubusercontent.com/85270361/133891791-09de575c-232e-4aa0-a07b-b80c9de989eb.png)
 
 **A graphical representation of a simple client/server system.**
@@ -33,16 +32,15 @@ $ sudo apt -y install curl
 $ curl -Iv www.propitixhomes.com
 ```
 
-## We should see the response from the remote server in below output.
+## We should see the response from the remote server in the below output.
 
-<img width="599" alt="Capture" src="https://user-images.githubusercontent.com/85270361/133892652-c3976695-5e58-4dac-bbb4-f48a5b8a41c7.PNG">
-
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/b3245d25-1807-40a9-b270-d8f164caa21d)
 
 # In this project we will be Implementing a Client Server Architecture using a Database Management System (MySQL).
 
 **The instructions below will be followed to complete the project.**
 
-* We are going to configure 2 new Linux servers in our Virtualbox
+* We are going to create and configure two Linux-based virtual servers (or EC2 instances) on the AWS platform.
 
 ```
 Server A - mysql server
@@ -62,31 +60,41 @@ $ sudo mysql_secure_installation
 ```
 
 
-<img width="659" alt="Capture 3" src="https://user-images.githubusercontent.com/85270361/133924810-39cb0ce5-1f48-4da5-a245-0b4d6a809567.PNG">
-
-<img width="726" alt="Capture 2" src="https://user-images.githubusercontent.com/85270361/133924820-3e413746-2dc3-4bf4-b44d-9e1ef55ad9bf.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/c211bbc3-3326-4b30-b5bd-1e18d27d5b72)
 
 
-* To test that our mysql server installation is successful we use this command
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/521c5202-204a-4ff8-ac6d-8a9cdfee471c)
 
 
-<img width="214" alt="mysq" src="https://user-images.githubusercontent.com/85270361/133927637-e2b72b64-1648-4638-8eaa-0b6aa9d548ac.PNG">
+* To test that our mysql server installation is successful we issue the following command:
 
 
-* Created a user on the mysql server with the following command
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/84a5f2f8-befa-4ce4-9906-811829e7e071)
 
-```
-mysql> CREATE USER ann@'%' IDENTIFIED BY 'your_password';
-```
+
+
+* Create a user on the mysql server with the following command:
 
 ```
-mysql> GRANT ALL ON *.* TO ann@'%'; FLUSH PRIVILEGES;
+CREATE USER 'teddy_mpoyi'@'%' IDENTIFIED WITH mysql_native_password BY 'password';
+```
+
+* Next we create a database named `test_db` by issueing the following command:
+
+```
+CREATE DATABASE test_db;
+```
+```
+mysql> GRANT ALL ON test_db.* TO 'teddy_mpoyi'@'%' WITH GRANT OPTION;
+```
+```
+FLUSH PRIVILEGES;
 ```
 
 ### **We should see the below output**
 
 
-<img width="947" alt="mysql" src="https://user-images.githubusercontent.com/85270361/133925109-61de8590-2b6f-457e-91c4-f930d5dd5ed4.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/f0a50764-1a53-43b2-abdd-1387d3f30563)
 
 
 * **On mysql client Linux Server, we will install the MySQL client software.**
@@ -103,39 +111,45 @@ or
 ipaddr
 ```
 
-By default, both of your Ec2 virual serves are located in the same local virtual network, so they can communicate to eachother using the local ip addresses.
-use *mysql server's* local ip address to connect from *mysql client* . MySQL Server uses TCP port 3306 by default, so you have to open it by creating a new entry in 'inbound rules' in '*MySQL server*' security groups.
+By default, both of your EC2 virual servers are located in the same local virtual network, so they can communicate with each other using their local ip addresses i.e their respective private IP addresses .
+use the *mysql server's* local IP address to connect from the *mysql client* . MySQL Server uses TCP port 3306 by default, so you have to open it by creating a new entry in the 'inbound rules' of the '*MySQL server*' security groups.
 
 
-<img width="958" alt="inbound" src="https://user-images.githubusercontent.com/85270361/133926263-10dcb910-0cc8-4d1f-9864-1c2bf7cc7ad6.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/25fb43a6-cd0a-4079-90ea-93b5e359061b)
 
-For extra security, do not allow all IP Addresses to reach '*MySQL Server*' allow access only to a specific local IP Address of '*MySQL Client*' .
+
+For extra security, do not allow all IP Addresses to reach '*MySQL Server*' allow access only to a specific local IP address in this case the '*MySQL Client*' IP address.
 
 1* **You might need to configure MySQL Server to allow connections from remote hosts.**
 
 
 ```
-$ sudo iv /etc/mysql/mysql.config.d/mysqld.cnf
+$ sudo vi /etc/mysql/mysql.conf.d/mysqld.cnf
 ```
 
-Replace '127.0.0.1' to '0.0.0.0'
+Replace '127.0.0.1' with '0.0.0.0' like this:
 
-As shown in the diagram
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/2521d2a7-ba17-4241-aff8-a02baf611e7a)
 
-<img width="656" alt="bind" src="https://user-images.githubusercontent.com/85270361/133926606-74231a75-92ab-437c-b530-9da5138c2a79.PNG">
-
-From '*MySQL Client*' Linux server connect remotely to '*MySQL Server*' DataBase Engine without using 'SSH'. You must use the mysql utility to perform this action.  
+Next we need to restart the service by shooting the following command:
+```
+sudo systemctl restart mysql
+```
+From `MySQL Client` Linux server connect remotely to `MySQL Server` DataBase Engine without using `SSH`. You must use the `mysql` utility to perform this action.  
 
 
 ```
-$ mysql -u remote_user -h IP-address -p
+$ mysql -u teddy_mpoyi -h 172.31.19.198 -p
 ```
 
-<img width="744" alt="connected to db" src="https://user-images.githubusercontent.com/85270361/133927008-08a5189e-33fb-4bc8-b257-13b1955f4ee4.PNG">
-
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/bc61ca2b-6d98-403a-a56a-8622ed6533ee)
 
 Check that you have successfully connected to a remote MySQL Server and can perform MySQL Queries.
 
 ```
 Show databases;
 ```
+If you see an output similar to the below image, then you have succesfully completed this project. You have deployed a fully functional MySQL Client-Server set up. You can further play around with this set up and practise in creating/dropping databases & tables and inserting/selecting records to and from them.
+
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/6b8ce965-d172-43ce-aaa8-6a82ff72ea7f)
+
