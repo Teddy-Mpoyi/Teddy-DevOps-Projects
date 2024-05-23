@@ -60,7 +60,7 @@ The Three Tiers in a Three-Tier Architecture
 
 ### Application Tier
 
-* This tier — also called the middle tier, logic tier, business logic or logic tier — is pulled from the presentation tier.
+* This tier — also called the middle tier, business logic or logic tier — is pulled from the presentation tier.
 
 * It controls the application’s core functionality by performing detailed processing and is usually coded in programming languages, such as Python, Java, C++, .NET, etc.
 
@@ -71,7 +71,7 @@ The Three Tiers in a Three-Tier Architecture
 * Data in this tier is kept independent of application servers or business logic, and is managed and accessed with programs, such as MongoDB, Oracle, MySQL, and Microsoft SQL Server.
 
 
-# In this project, We will have the hands-on experience that showcases Three-tier Architecture while also ensuring that the disks used to store files on the Linux servers are adequately partitioned and managed through programs such as gdisk and LVM respectively. The following steps will be followed to achieve our aim and objectives of this project.
+# In this project, We will have the hands-on experience that showcases Three-tier Architecture while also ensuring that the disks used to store files on the Linux servers are adequately partitioned and managed through programs such as `gdisk` and `LVM` respectively. The following steps will be followed to achieve our aim and objectives of this project.
 
 
 
@@ -79,69 +79,68 @@ The Three Tiers in a Three-Tier Architecture
 
 ## Step 1 — Prepare the Web Server
 
-1* **Launch an EC2 instance that will serve as "Web Server". Create 3 volumes in the same AZ as your Web Server EC2, each of 10 GiB.**
+1. **Launch an EC2 instance that will serve as "Web Server". Create 3 volumes in the same AZ as your Web Server EC2, each of 10 GiB.**
 
-2* **Create and Attach all three volumes one by one to your Web Server EC2 instance**
+2. **Attach all three volumes one at a time to your Web Server EC2 instance**
 
-3* **Open MobaXterm and connect Ec2 instances using public IP Address and begin configuration**
-
-
+3. **Open MobaXterm and connect into your EC2 instance using the public IP Address and begin configuration and use the `lsblk` command to inspect what block devices are attached to the server**
+   
 ```
 # lsblk
 ```
 
-<img width="412" alt="lsblk" src="https://user-images.githubusercontent.com/85270361/135422111-510c5815-5504-419e-bb6a-268f76c30e46.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/49459b52-c3ba-41a2-989d-83134e97bd97)
 
 
+4. **Use `df -h` command to see all mounts and free space on your server**
 ```
 df -h 
 ```
 
-<img width="452" alt="df-h" src="https://user-images.githubusercontent.com/85270361/135422419-1869062e-5e72-4554-93dd-d35a7b92c0ef.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/c59aa7e6-56c0-4a8c-ac7e-75abfe303987)
 
-
+5. **Use the `gdisk` utility to create a single partition on each of the 3 disks**
+ 
 ```
 sudo gdisk /dev/xvdf
 ```
 
-<img width="432" alt="gdisk xvdf" src="https://user-images.githubusercontent.com/85270361/135423388-36260d77-4203-4041-9d08-b31b5e086447.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/9d5b3e62-a82e-4b27-8313-f4ada06fe513)
 
 
 ```
 sudo gdisk /dev/xvdg
 ```
 
-<img width="421" alt="gdisk xdvg" src="https://user-images.githubusercontent.com/85270361/135423595-197621a4-0583-4be8-bc94-49622daf6f1b.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/972c5b17-ef9d-43e4-bd54-78754e5af4d9)
 
 
 ```
 sudo gdisk /dev/xvdh
 ```
 
-<img width="478" alt="gdisk xvdh" src="https://user-images.githubusercontent.com/85270361/135423705-3ee99907-b81e-472e-8bf5-d40ffc734f03.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/73b3f3ad-6763-466e-8d75-f3876b363c17)
 
 
-* **We will use the command below to view the newly configured partition on each of the 3 disks**
+6. **We will use the `lsblk`command to view the newly configured partition on each of the 3 disks**
 
 
 ```
 # lsblk
 ```
 
-![image](https://user-images.githubusercontent.com/85270361/135425063-3534a598-cd1c-4c53-81d5-220dbb36ab0a.png)
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/e24c59e4-90d6-469a-ab5a-03c51c040afa)
 
 
-* **We use this command to check for available storage for Logical Volume Manager (LVM)**
+7. **We install `lvm2` package using `sudo yum install lvm2` and then run the `sudo lvmdiskscan`command to check for available storage for Logical Volume Manager (LVM)**
 
 ```
 # sudo lvmdiskscan
 ```
 
 
-<img width="356" alt="ctscan" src="https://user-images.githubusercontent.com/85270361/135428219-a3c55d96-89fa-4278-97f5-8ab814123803.PNG">
 
-
-* **Use pvcreate utility to mark each of 3 disks as physical volumes (PVs) to be used by LVM**
+8. **Use the `pvcreate` utility to mark each of 3 disks as physical volumes (PVs) to be used by LVM**
 
 ```
 sudo pvcreate /dev/xvdf1
@@ -154,29 +153,29 @@ sudo pvs
 ```
 
 
-<img width="374" alt="pvs" src="https://user-images.githubusercontent.com/85270361/135429265-0e730aba-a727-4345-9e49-dbe904fa193e.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/16524e49-a00b-48e9-b6af-3a657d5df38d)
 
 
-* **Use vgcreate utility to add all 3 PVs to a volume group (VG). Name the VG webdata-vg**
+9. **Use the `vgcreate` utility to add all 3 PVs to a volume group (VG). Name the VG webdata-vg**
 
 
 ```
 sudo vgcreate webdata-vg /dev/xvdh1 /dev/xvdg1 /dev/xvdf1
 ```
 
-<img width="484" alt="vg webdata" src="https://user-images.githubusercontent.com/85270361/135429848-7188ac0c-8956-4ff5-b535-344893c70228.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/5b24d963-8c35-4bff-9842-6a0892896fb0)
 
 
-* **Verify that your VG has been created successfully by running**
+10. **Verify that your VG has been created successfully by running**
 
 ```
 sudo vgs
 ```
 
-<img width="331" alt="sudo vgs" src="https://user-images.githubusercontent.com/85270361/135436025-0466ce9d-d3fc-48b3-a13c-bd08baf5a081.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/c85cb08c-c118-49e3-a028-ec6bec12778e)
 
 
-* **Use lvcreate utility to create 2 logical volumes. apps-lv (Use half of the PV size), and logs-lv Use the remaining space of the PV size. NOTE: apps-lv will be used to store data for the Website while, logs-lv will be used to store data for logs.**
+11. **Use the `lvcreate` utility to create 2 logical volumes. `apps-lv` (*Use half of the PV size*), and `logs-lv` *Use the remaining space of the PV size*. NOTE: apps-lv will be used to store data for the Website while, logs-lv will be used to store data for logs.**
 
 
 ```
@@ -184,126 +183,119 @@ sudo lvcreate -n apps-lv -L 14G webdata-vg
 sudo lvcreate -n logs-lv -L 14G webdata-vg
 ```
 
-<img width="505" alt="lvs lvs" src="https://user-images.githubusercontent.com/85270361/135436287-9aff4a1d-459b-42a2-808e-b93e68c92438.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/687d478c-955e-42e7-9f6b-5b1a434a81c9)
 
 
-* **Verify that your Logical Volume has been created successfully**
+12. **Verify that your Logical Volume has been created successfully**
 
 
-<img width="558" alt="sudo lvs" src="https://user-images.githubusercontent.com/85270361/135436869-6e760728-8803-403a-9379-354cc26f1bf1.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/724eed37-abef-4e42-a01d-81a1cae2d210)
 
 
-* **Verify the entire setup**
+13. **Verify the entire setup**
 
 ```
 sudo vgdisplay -v #view complete setup - VG, PV, and LV
 sudo lsblk 
 ```
 
-<img width="418" alt="isblk 2" src="https://user-images.githubusercontent.com/85270361/135437094-a2a324c3-8a54-43b1-9afb-e70388887ef9.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/26a9571c-0be2-4b19-99ec-163bf9fea297)
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/ed7ee1ff-6157-433a-aef1-7602165f7c4f)
 
 
-* **Use mkfs.ext4 to format the logical volumes with ext4 filesystem**
+14. **Use `mkfs.ext4` to format the logical volumes with *ext4* filesystem**
 
 ```
-sudo mkfs -t ext4 /dev/webdata-vg/app-lv
-sudo mkfs -t ext4 /dev/webdata-vg/logs-lv
+sudo mkfs -t ext4 /dev/vg-webdata/app-lv
+sudo mkfs -t ext4 /dev/vg-webdata/logs-lv
 ```
 
-<img width="527" alt="mkfs" src="https://user-images.githubusercontent.com/85270361/135437641-e4579762-69ec-4732-bea6-7869ac6b9d37.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/e60b1a48-4e8a-4eaf-b50a-08869d4d97b1)
 
 
-### Create /var/www/html directory to store website files
+15. **Create */var/www/html* directory to store website files**
 
 ```
 sudo mkdir -p /var/www/html
 ```
 
-### Create /home/recovery/logs to store backup of log data
+16. **Create */home/recovery/logs* directory to store backup of logs data**
 
 ```
 sudo mkdir -p /home/recovery/logs
 ```
 
-### Mount /var/www/html on apps-lv logical volume
+17. **Mount */var/www/html* on *apps-lv* logical volume**
 
 
 ```
-sudo mount /dev/webdata-vg/apps-lv /var/www/html/
+sudo mount /dev/vg-webdata/app-lv /var/www/html/
 ```
 
-### Use rsync utility to backup all the files in the log directory /var/log into /home/recovery/logs (This is required before mounting the file system)
+18. **Use the `rsync` utility to backup all the files in the log directory */var/log* into the */home/recovery/logs* directory (This is required before mounting the filesystem)**
 
 ```
 sudo rsync -av /var/log/. /home/recovery/logs/
 ```
 
 
-### Mount /var/log on logs-lv logical volume. (Note that all the existing data on /var/log will be deleted. That is why step 15 above is very important)
+19. **Mount /var/log on *logs-lv* logical volume. (Note that all the existing data on /var/log will be deleted. That is why step 18 above is very important)**
 
 ```
-sudo mount /dev/webdata-vg/logs-lv /var/log
+sudo mount /dev/vg-webdata/logs-lv /var/log
 ```
 
-### Restore log files back into /var/log directory
+19. **Restore log files back into */var/log* directory**
 
 ```
-sudo rsync -av /home/recovery/logs/. /var/log
+sudo rsync -av /home/recovery/logs/log/ /var/log
 ```
 
 
-### Update /etc/fstab file so that the mount configuration will persist after restart of the server.
+20. **Update `/etc/fstab` file so that the mount configuration will persist after restart of the server.**
 
 
-* **The UUID of the device will be used to update the /etc/fstab file;**
+21. **The UUID of the device will be used to update the /etc/fstab file;**
 
 ```
 sudo blkid
 ```
 
-<img width="570" alt="sudo blik" src="https://user-images.githubusercontent.com/85270361/135439541-9b7f587d-56b4-49ef-9858-b323cecbdb03.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/36d61d90-3b35-46e6-bb2b-a0746e934121)
 
 ```
 sudo vi /etc/fstab
 ```
 
-### Update /etc/fstab in this format using your own UUID and rememeber to remove the leading and ending quotes.
+22. **Update /etc/fstab in this format using your own UUID and rememeber to remove the leading and trailing quotes.**
 
-<img width="484" alt="fstab" src="https://user-images.githubusercontent.com/85270361/135439997-c33bee94-0765-43fc-ba5b-79e5e9f56af9.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/2016b06b-01bc-4571-9f5b-acd806bfb459)
 
 
-### Test the configuration and reload the daemon
+23. **Test the configuration and reload the daemon**
 
 ```
 sudo mount -a
 sudo systemctl daemon-reload
 ```
 
-### Verify your setup by running df -h, output must look like this:
+24.** Verify your setup by running `df -h`, output must look like this:**
 
 
 ```
 df -h 
 ```
 
-<img width="603" alt="dh f2" src="https://user-images.githubusercontent.com/85270361/135442051-ab931d5f-28e1-4df4-9e06-c126811e98c8.PNG">
+![image](https://github.com/Teddy-Mpoyi/Teddy-DevOps-Projects/assets/103863428/2cda8220-14a2-4824-ae81-e4a2b186104c)
 
 
 ## Step 2 — Prepare the Database Server
 
-1* **Launch a second RedHat EC2 instance that will have a role – ‘DB Server’**
+1* **Launch a second RedHat EC2 instance that will have a role – ‘DB Server’. Repeat the same steps as for the Web Server, but instead of `app-lv` create `db-lv` and mount it to `/db` directory instead of `/var/www/html/`**
 
 2* **Create and Attach all three volumes one by one to your DB Server EC2 instance**
 
 3* **Open MobaXterm and connect Ec2 instances using public IP Address and begin configuration**
-
-
-```
-$ df -h
-```
-
-
-<img width="522" alt="df h db" src="https://user-images.githubusercontent.com/85270361/135603957-0c5f8582-6a1c-4c50-bd67-5e4add4f5603.PNG">
 
 
 
@@ -598,9 +590,6 @@ exit
 ## Step 6 — Configure WordPress to connect to remote database.
 
 * Do not forget to open MySQL port 3306 on DB Server EC2. For extra security, you shall allow access to the DB server ONLY from your Web Server’s IP address, so in the Inbound Rule configuration specify source as /32
-
-
-<img width="960" alt="database security group" src="https://user-images.githubusercontent.com/85270361/135609816-96e8aab4-e30a-459f-8f96-239250c96dd6.PNG">
 
 
 1* **Install MySQL client and test that you can connect from your Web Server to your DB server by using mysql-client**
